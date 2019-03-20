@@ -1,5 +1,6 @@
 package com.example.foobar
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.github.kittinunf.fuel.Fuel
@@ -9,23 +10,49 @@ import org.json.JSONObject
 class Car(val id:Int, val model:String) {
 }
 class MainActivity : AppCompatActivity() {
+    val host = "http://10.0.2.2:9001"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        buttonClickEvent()
+        buttonClickEventForExampleCar()
+        buttonClickEventForViewInformationOnExampleCar()
 
     }
 
-    private fun buttonClickEvent() {
+    private fun buttonClickEventForViewInformationOnExampleCar() {
+        fun intentSender(intent:Intent, value:JSONObject):Intent {
+            return intent.putExtra("carInfo",value.toString())
+        }
+        getInfo.setOnClickListener{
+            val intent = Intent(it.context, CarInfo::class.java)
+
+            Fuel.get("$host/getCarInfo/1").appendHeader("Host","localhost").response{ request, response, result ->
+            val jsonObj = result.fold<JSONObject>({success ->
+                    println("successful response from API:" + String(success))
+                JSONObject(String(success))
+                }, { failure ->
+                    println("failed api call" + failure.message)
+                    JSONObject("{}")
+                })
+
+               val intentUpdated = intentSender(intent, jsonObj)
+                startActivity(intentUpdated)
+            }
+
+        }
+    }
+    private fun buttonClickEventForExampleCar() {
         getCar.setOnClickListener {
-            Fuel.get("http://10.0.2.2:9001/getCar").response { request, response, result ->
+
+            Fuel.get("$host/getCar").appendHeader("Host","localhost").response { request, response, result ->
 
                 val carFromAPI: Car? = result.fold<Car?>({ success ->
-                    println("//" + String(success))
+                    println("successful response from API:"  + String(success))
+
                     val bodyOfResult = JSONObject(String(success))
-                    println(bodyOfResult)
+
                     getIdAndModelFromJson(bodyOfResult)
                 }, { e: Exception ->
                     println("Something went wrong on the call to getCar" + e.message)
@@ -53,6 +80,4 @@ class MainActivity : AppCompatActivity() {
         val modelOfCar = jsonObject.getString("model")
         return Car(idOfCar,modelOfCar)
     }
-
-
 }
