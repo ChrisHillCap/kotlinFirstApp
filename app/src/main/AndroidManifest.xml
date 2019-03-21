@@ -12,11 +12,14 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <activity android:name=".MainAPIFunctionality">
+        </activity>
         <activity
                 android:name=".CarInfo"
                 android:label="Car info">
-            <meta-data android:name="android.support.PARENT_MAIN_ACTIVITY"
-                       android:value=".MainActivity"></meta-data>
+            <meta-data
+                    android:name="android.support.PARENT_MAIN_ACTIVITY"
+                    android:value=".MainActivity"/>
         </activity>
         <activity android:name=".MainActivity">
             <intent-filter>

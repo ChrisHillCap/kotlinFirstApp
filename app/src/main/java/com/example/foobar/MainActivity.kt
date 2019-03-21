@@ -9,8 +9,15 @@ import org.json.JSONObject
 
 class Car(val id:Int, val model:String) {
 }
-class MainActivity : AppCompatActivity() {
-    val host = "http://10.0.2.2:9001"
+
+class MainActivity : MainActivityI() {
+
+    override val fuel:Fuel = Fuel
+    override val host: String = "http://10.0.2.2:9001"
+}
+abstract class MainActivityI : AppCompatActivity() {
+    abstract val host:String
+    abstract val fuel:Fuel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,7 +25,15 @@ class MainActivity : AppCompatActivity() {
 
         buttonClickEventForExampleCar()
         buttonClickEventForViewInformationOnExampleCar()
+        buttonToLoadMainAPI()
 
+    }
+
+     fun buttonToLoadMainAPI() {
+        mainAPI.setOnClickListener {
+            val intent = Intent(it.context, MainAPIFunctionality::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun buttonClickEventForViewInformationOnExampleCar() {
@@ -28,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         getInfo.setOnClickListener{
             val intent = Intent(it.context, CarInfo::class.java)
 
-            Fuel.get("$host/getCarInfo/1").appendHeader("Host","localhost").response{ request, response, result ->
+            fuel.get("$host/getCarInfo/1").appendHeader("Host","localhost").response{ request, response, result ->
             val jsonObj = result.fold<JSONObject>({success ->
                     println("successful response from API:" + String(success))
                 JSONObject(String(success))
@@ -43,10 +58,11 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
+
     private fun buttonClickEventForExampleCar() {
         getCar.setOnClickListener {
 
-            Fuel.get("$host/getCar").appendHeader("Host","localhost").response { request, response, result ->
+            fuel.get("$host/getCar").appendHeader("Host","localhost").response { request, response, result ->
 
                 val carFromAPI: Car? = result.fold<Car?>({ success ->
                     println("successful response from API:"  + String(success))
@@ -67,7 +83,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateView(car: Car?) {
         runOnUiThread(  Runnable({
-                if (car != null) {
+            if (car != null) {
                     carId.setText(car.id.toString())
                     carModel.setText(car.model)
                 }

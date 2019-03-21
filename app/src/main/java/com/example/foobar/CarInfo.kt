@@ -12,4 +12,7 @@ class CarInfo : AppCompatActivity() {
         val valueOfCarInfo: String = intent.getStringExtra("carInfo")
         carInfoViewer.setText(valueOfCarInfo)
     }
+
+
+
 }
